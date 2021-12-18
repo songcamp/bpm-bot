@@ -1,0 +1,27 @@
+{
+  "name": "bpm-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.6.0",
+    "@discordjs/voice": "^0.7.5",
+    "axios": "^0.21.4",
+    "discord-player": "^5.2.0",
+    "discord.js": "^13.2.0",
+    "libsodium-wrappers": "^0.7.9",
+    "node-opus": "^0.3.3",
+    "opusscript": "^0.0.8"
+  },
+  "devDependencies": {
+    "dotenv": "^10.0.0",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1"
+  }
+}
