@@ -63,7 +63,7 @@ client.on('messageCreate', async (message) => {
         return message.reply(`There are no songs in the queue!`);
       }
       let fields = [];
-      server_queue.songs.map((a, i) =>
+      server_queue.songs.forEach((a, i) =>
         fields.push({
           name: emojiNumbers[i + 1],
           value: `${a.title} - ${a.artist}`,
@@ -95,37 +95,36 @@ client.on('messageCreate', async (message) => {
           }
         };
         const res = await provider();
-        
+
         if (isNullish(server_queue)) {
-            if (isNullish(res)) {
-              throw new Error(`No audio provider for: ${command}`);
-            }
-            const connection = joinVoiceChannel({
-              channelId: voiceChannel.id,
-              guildId: message.guild.id,
-              adapterCreator: message.guild.voiceAdapterCreator,
-            });
+          if (isNullish(res)) {
+            throw new Error(`No audio provider for: ${command}`);
+          }
+          const connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: message.guild.id,
+            adapterCreator: message.guild.voiceAdapterCreator,
+          });
 
-            const queue_constructor = {
-              voice_channel: voiceChannel,
-              text_channel: message.channel,
-              connection: null,
-              songs: [],
-              player: createAudioPlayer(),
-            };
-            // Add our key and value pair into the global queue. We then use this to get our server queue.
-            queue.set(message.guild.id, queue_constructor);
-            res.map((d) => queue_constructor.songs.push(d));
+          const queue_constructor = {
+            voice_channel: voiceChannel,
+            text_channel: message.channel,
+            connection: null,
+            songs: [],
+            player: createAudioPlayer(),
+          };
+          // Add our key and value pair into the global queue. We then use this to get our server queue.
+          queue.set(message.guild.id, queue_constructor);
+          res.forEach((d) => queue_constructor.songs.push(d));
 
-            queue_constructor.connection = connection;
-            audioPlayer(
-              message,
-              { ...queue_constructor.songs[0], url: command },
-              queue
-            );
-          
+          queue_constructor.connection = connection;
+          audioPlayer(
+            message,
+            { ...queue_constructor.songs[0], url: command },
+            queue
+          );
         } else {
-          res.map((d) => server_queue.songs.push({ ...d, url: command }));
+          res.forEach((d) => server_queue.songs.push({ ...d, url: command }));
           message.reply(
             res.length > 1
               ? 'Songs added to the queue!'

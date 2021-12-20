@@ -17,7 +17,6 @@ const audius = async (command) => {
     });
   
     const { data } = res.data;
-    console.log(data)
     // If no data.id we have no music stream
     if (isNullish(data?.id)) {
       throw new Error('Failed to get music from Audius.');

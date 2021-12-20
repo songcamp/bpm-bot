@@ -8,7 +8,6 @@ const audioPlayer = async (message, song, queue) => {
   const { player, connection } = song_queue;
 
   // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
-  // FIX - this is broken.
   if (isNullish(song)) {
     song_queue.player.stop();
     const connection = getVoiceConnection(message.guild.id);
