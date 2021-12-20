@@ -136,7 +136,7 @@ client.on('messageCreate', async (message) => {
       }
     }
   } catch (err) {
-    console.log('ERRORED OUT LOG::', { command, message: err.message });
+    console.log('ERRORED OUT LOG::', { message: message.content, error: err.message });
     message.reply(err.message || 'Error');
   }
 });

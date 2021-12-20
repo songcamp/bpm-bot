@@ -1,6 +1,8 @@
 import isNullish from '@bitty/nullish';
 import { validate as isValidV4UUID } from 'uuid';
 
+const IPFS_PROVIDER = 'https://cloudflare-ipfs.com/ipfs/';
+
 const isValidUrl = (url) => {
   try {
     new URL(url);
@@ -21,7 +23,7 @@ const emojiNumbers = [
   '7️⃣',
   '8️⃣',
   '9️⃣',
-  '1️⃣0️⃣'
+  '1️⃣0️⃣',
 ];
 
 // Extract artist + song from urls
@@ -40,10 +42,22 @@ const getUrl = (link) => {
   return { artist, song };
 };
 
-export { 
-    isValidUrl, 
-    getUrl, 
-    isValidV4UUID, 
-    emojiNumbers,
-    isNullish
+// Zora sometimes shows pinned IPFS + sometimes IPFS hashes.
+// This function will convert IPFS hashes to pinned IPFS URLS.
+const ipfsConverter = (ipfs) => {
+  if (ipfs.includes('ipfs://')) {
+    const IPFS_HASH = ipfs.replace('ipfs://', '');
+    return `${IPFS_PROVIDER}${IPFS_HASH}`;
+  } else if (ipfs.includes('https://ipfs.io/ipfs/')) {
+    return ipfs.replace('https://ipfs.io/ipfs/', IPFS_PROVIDER);
+  }
+};
+
+export {
+  isValidUrl,
+  getUrl,
+  isValidV4UUID,
+  emojiNumbers,
+  isNullish,
+  ipfsConverter,
 };

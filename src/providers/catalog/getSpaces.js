@@ -15,7 +15,7 @@ const getSpaces = async (spaceId, command) => {
         data: { spaces_by_pk },
     } = res.data;
 
-    if (!Array.isArray(spaces_by_pk) || spaces_by_pk.length === 0) {
+    if (spaces_by_pk.length === 0) {
         throw new Error('Catalog Space not found');
     }
 
