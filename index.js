@@ -34,50 +34,52 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-  const trigger = '!bpm'; // Discord command trigger !bpm
-  const server_queue = queue.get(message.guild.id); // GET QUEUE
-  const voiceChannel = message.member.voice.channel;
-  if (message.content.startsWith(trigger)) {
-    const command = message.content.replace(`${trigger} `, ''); // This is the command appended to !bpm or the URL
-    if (command === 'gm') {
-      return message.reply(`GM ${message.author.username}`);
-    } else if (!voiceChannel) {
-      message.reply('You must be in an active voice channel to run commands.');
-    } else if (command === 'stop') {
-      if (!server_queue) {
-        return msg.reply(`There are no songs in the queue!`);
-      }
-      server_queue.player.stop();
-      const connection = getVoiceConnection(message.guild.id);
-      connection.destroy();
-      queue.delete(message.guild.id);
-      message.reply('Music stopped!');
-    } else if (command === 'skip') {
-      if (!server_queue) {
-        return msg.reply(`There are no songs in the queue!`);
-      }
-      server_queue.songs.shift();
-      audioPlayer(message, server_queue.songs[0], queue);
-    } else if (command === 'np') {
-      if (!server_queue) {
-        return message.reply(`There are no songs in the queue!`);
-      }
-      let fields = [];
-      server_queue.songs.forEach((a, i) =>
-        fields.push({
-          name: emojiNumbers[i + 1],
-          value: `${a.title} - ${a.artist}`,
-        })
-      );
+  try {
+    const trigger = '!bpm'; // Discord command trigger !bpm
+    const server_queue = queue.get(message.guild.id); // GET QUEUE
+    const voiceChannel = message?.member?.voice?.channel;
+    if (message.content.startsWith(trigger)) {
+      const command = message.content.replace(`${trigger} `, ''); // This is the command appended to !bpm or the URL
+      if (command === 'gm') {
+        return message.reply(`GM ${message.author.username}`);
+      } else if (!voiceChannel) {
+        message.reply(
+          'You must be in an active voice channel to run commands.'
+        );
+      } else if (command === 'stop') {
+        if (!server_queue) {
+          return msg.reply(`There are no songs in the queue!`);
+        }
+        server_queue.player.stop();
+        const connection = getVoiceConnection(message.guild.id);
+        connection.destroy();
+        queue.delete(message.guild.id);
+        message.reply('Music stopped!');
+      } else if (command === 'skip') {
+        if (!server_queue) {
+          return msg.reply(`There are no songs in the queue!`);
+        }
+        server_queue.songs.shift();
+        audioPlayer(message, server_queue.songs[0], queue);
+      } else if (command === 'np') {
+        if (!server_queue) {
+          return message.reply(`There are no songs in the queue!`);
+        }
+        let fields = [];
+        server_queue.songs.forEach((a, i) =>
+          fields.push({
+            name: emojiNumbers[i + 1],
+            value: `${a.title} - ${a.artist}`,
+          })
+        );
 
-      const Embed = new MessageEmbed()
-        .setColor('#ff7a03')
-        .setTitle(`${fields.length} songs in queue`)
-        .addFields(fields.slice(0, 10));
+        const Embed = new MessageEmbed()
+          .setColor('#ff7a03')
+          .setTitle(`${fields.length} songs in queue`)
+          .addFields(fields.slice(0, 10));
 
-      message.reply({ embeds: [Embed] });
-    } else if (isValidUrl(command)) {
-      try {
+        message.reply({ embeds: [Embed] });
+      } else if (isValidUrl(command)) {
         // Select the correct provider based on the URL
         // Wee bit unsafe as we are using part of the URL to determine the provider.
         const provider = async () => {
@@ -131,9 +133,10 @@ client.on('messageCreate', async (message) => {
               : 'Song added to the queue!'
           );
         }
-      } catch (err) {
-        message.reply(err.message || 'Error');
       }
     }
+  } catch (err) {
+    console.log('ERRORED OUT LOG::', { command, message: err.message });
+    message.reply(err.message || 'Error');
   }
 });
