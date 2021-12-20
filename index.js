@@ -17,7 +17,7 @@ import {
 } from '@discordjs/voice';
 
 // UTILITIES
-import { isValidUrl, emojiNumbers } from './src/utilities/index.js';
+import { isValidUrl, emojiNumbers, isNullish } from './src/utilities/index.js';
 
 // PROVIDERS
 import { zora, sound, catalog, audius } from './src/providers/index.js';
@@ -77,62 +77,63 @@ client.on('messageCreate', async (message) => {
 
       message.reply({ embeds: [Embed] });
     } else if (isValidUrl(command)) {
-      // Select the correct provider based on the URL
-      // Wee bit unsafe as we are using part of the URL to determine the provider.
-      async function provider() {
-        switch (true) {
-          case command.includes('catalog.works'):
-            return await catalog(command);
-          case command.includes('zora.co'):
-            return await zora(command);
-          case command.includes('sound.xyz'):
-            return await sound(command);
-          case command.includes('audius.co'):
-            return await audius(command);
-          default:
-            return null;
-        }
-      }
-      const res = await provider();
-      if (!server_queue) {
-        try {
-          if (!res) {
-            throw new Error(`No audio provider for: ${command}`);
+      try {
+        // Select the correct provider based on the URL
+        // Wee bit unsafe as we are using part of the URL to determine the provider.
+        const provider = async () => {
+          switch (true) {
+            case command.includes('catalog.works'):
+              return await catalog(command);
+            case command.includes('zora.co'):
+              return await zora(command);
+            case command.includes('sound.xyz'):
+              return await sound(command);
+            case command.includes('audius.co'):
+              return await audius(command);
+            default:
+              return null;
           }
-          const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: message.guild.id,
-            adapterCreator: message.guild.voiceAdapterCreator,
-          });
+        };
+        const res = await provider();
+        
+        if (isNullish(server_queue)) {
+            if (isNullish(res)) {
+              throw new Error(`No audio provider for: ${command}`);
+            }
+            const connection = joinVoiceChannel({
+              channelId: voiceChannel.id,
+              guildId: message.guild.id,
+              adapterCreator: message.guild.voiceAdapterCreator,
+            });
 
-          const queue_constructor = {
-            voice_channel: voiceChannel,
-            text_channel: message.channel,
-            connection: null,
-            songs: [],
-            player: createAudioPlayer(),
-          };
-          // Add our key and value pair into the global queue. We then use this to get our server queue.
-          queue.set(message.guild.id, queue_constructor);
-          res.map((d) => queue_constructor.songs.push(d));
+            const queue_constructor = {
+              voice_channel: voiceChannel,
+              text_channel: message.channel,
+              connection: null,
+              songs: [],
+              player: createAudioPlayer(),
+            };
+            // Add our key and value pair into the global queue. We then use this to get our server queue.
+            queue.set(message.guild.id, queue_constructor);
+            res.map((d) => queue_constructor.songs.push(d));
 
-          queue_constructor.connection = connection;
-          audioPlayer(
-            message,
-            { ...queue_constructor.songs[0], url: command },
-            queue
+            queue_constructor.connection = connection;
+            audioPlayer(
+              message,
+              { ...queue_constructor.songs[0], url: command },
+              queue
+            );
+          
+        } else {
+          res.map((d) => server_queue.songs.push({ ...d, url: command }));
+          message.reply(
+            res.length > 1
+              ? 'Songs added to the queue!'
+              : 'Song added to the queue!'
           );
-        } catch (err) {
-          message.reply(err.message || 'Error');
-          // throw err;
         }
-      } else {
-        res.map((d) => server_queue.songs.push({ ...d, url: command }));
-        message.reply(
-          res.length > 1
-            ? 'Songs added to the queue!'
-            : 'Song added to the queue!'
-        );
+      } catch (err) {
+        message.reply(err.message || 'Error');
       }
     }
   }

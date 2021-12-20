@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { createAudioResource, StreamType, getVoiceConnection } from '@discordjs/voice';
+import { isNullish } from '../utilities/index.js';
 
 const audioPlayer = async (message, song, queue) => {
   const { guild } = message;
@@ -8,7 +9,7 @@ const audioPlayer = async (message, song, queue) => {
 
   // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
   // FIX - this is broken.
-  if (!song) {
+  if (isNullish(song)) {
     song_queue.player.stop();
     const connection = getVoiceConnection(message.guild.id);
     connection.destroy();

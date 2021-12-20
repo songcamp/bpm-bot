@@ -1,3 +1,6 @@
+import isNullish from '@bitty/nullish';
+import { validate as isValidV4UUID } from 'uuid';
+
 const isValidUrl = (url) => {
   try {
     new URL(url);
@@ -37,9 +40,10 @@ const getUrl = (link) => {
   return { artist, song };
 };
 
-const uuidV4Regex =
-  /^[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12}$/i;
-
-const isValidV4UUID = (uuid) => uuidV4Regex.test(uuid);
-
-export { isValidUrl, getUrl, isValidV4UUID, emojiNumbers };
+export { 
+    isValidUrl, 
+    getUrl, 
+    isValidV4UUID, 
+    emojiNumbers,
+    isNullish
+};
