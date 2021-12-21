@@ -1,22 +1,26 @@
 import { MessageEmbed } from 'discord.js';
-import { createAudioResource, StreamType, getVoiceConnection } from '@discordjs/voice';
+import {
+  createAudioResource,
+  StreamType,
+  getVoiceConnection,
+} from '@discordjs/voice';
 import { isNullish } from '../utilities/index.js';
 
 const audioPlayer = async (message, song, queue) => {
-  const { guild } = message;
-  const song_queue = queue.get(guild.id);
-  const { player, connection } = song_queue;
-
-  // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
-  if (isNullish(song)) {
-    song_queue.player.stop();
-    const connection = getVoiceConnection(message.guild.id);
-    connection.destroy();
-    queue.delete(message.guild.id);
-    return;
-  }
-
   try {
+    const { guild } = message;
+    const song_queue = queue.get(guild.id);
+    const { player, connection } = song_queue;
+
+    // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
+    if (isNullish(song)) {
+      song_queue.player.stop();
+      const connection = getVoiceConnection(message.guild.id);
+      connection.destroy();
+      queue.delete(message.guild.id);
+      return;
+    }
+
     connection;
     connection.subscribe(player);
 
@@ -47,8 +51,8 @@ const audioPlayer = async (message, song, queue) => {
       .setImage(artwork);
 
     message.channel.send({ embeds: [Embed] });
-  } catch (error) {
-    message.channel.send({ content: error.message || 'Error' });
+  } catch (err) {
+    message.channel.send(err.message || 'Error' );
   }
 };
 
