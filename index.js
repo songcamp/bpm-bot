@@ -136,7 +136,10 @@ client.on('messageCreate', async (message) => {
       }
     }
   } catch (err) {
-    console.log('ERRORED OUT LOG::', { message: message.content, error: err.message });
+    console.log('Index crashed, values::', {
+      message: message.content,
+      err: err.message,
+    });
     message.reply(err.message || 'Error');
   }
 });

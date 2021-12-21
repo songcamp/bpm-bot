@@ -52,7 +52,13 @@ const audioPlayer = async (message, song, queue) => {
 
     message.channel.send({ embeds: [Embed] });
   } catch (err) {
-    message.channel.send(err.message || 'Error' );
+    console.log('Player crashed, values::', {
+      message,
+      song,
+      queue,
+      err: err.message,
+    });
+    message.channel.send(err.message || 'Error');
   }
 };
 
