@@ -58,7 +58,6 @@ const audioPlayer = async (message, song, queue) => {
       queue,
       err: err.message,
     });
-    message.channel.send(err.message || 'Error');
   }
 };
 
