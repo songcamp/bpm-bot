@@ -1,7 +1,7 @@
 import isNullish from '@bitty/nullish';
 import { validate as isValidV4UUID } from 'uuid';
 
-const IPFS_PROVIDER = 'https://cloudflare-ipfs.com/ipfs/';
+const IPFS_PROVIDER = 'https://ipfs.fleek.co/ipfs/';
 
 const isValidUrl = (url) => {
   try {
@@ -50,6 +50,8 @@ const ipfsConverter = (ipfs) => {
     return `${IPFS_PROVIDER}${IPFS_HASH}`;
   } else if (ipfs.includes('https://ipfs.io/ipfs/')) {
     return ipfs.replace('https://ipfs.io/ipfs/', IPFS_PROVIDER);
+  } else {
+    return ipfs;
   }
 };
 

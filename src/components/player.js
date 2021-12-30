@@ -45,7 +45,7 @@ const audioPlayer = async (message, song, queue) => {
 
     const Embed = new MessageEmbed()
       .setColor('#ff7a03')
-      .setTitle(`${title} - ${artist}`)
+      .setTitle(`${title}${artist ? ` - ${artist}` : ''}`)
       .setURL(url)
       .setAuthor(`Now Playing - via ${provider}`, artwork, url)
       .setImage(artwork);

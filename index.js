@@ -120,13 +120,14 @@ client.on('messageCreate', async (message) => {
           res.forEach((d) => queue_constructor.songs.push(d));
 
           queue_constructor.connection = connection;
+      
           audioPlayer(
             message,
-            { ...queue_constructor.songs[0], url: command },
+            { ...queue_constructor.songs[0] },
             queue
           );
         } else {
-          res.forEach((d) => server_queue.songs.push({ ...d, url: command }));
+          res.forEach((d) => server_queue.songs.push({ ...d}));
           message.reply(
             res.length > 1
               ? 'Songs added to the queue!'

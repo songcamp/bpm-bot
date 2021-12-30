@@ -4,7 +4,6 @@ import { url, GET_ZORA } from './request.js';
 
 const zora = async (command) => {
   const { song } = getUrl(command);
-
   const res = await axios({
     url,
     method: 'post',
@@ -28,32 +27,38 @@ const zora = async (command) => {
     method: 'GET',
   });
 
-  if (isNullish(metadata?.data?.body)) {
+  if (isNullish(metadata?.data)) {
     throw new Error(errorMessage);
   }
-
-  const { title, artwork, artist, mimeType } = metadata.data.body;
-
   // Only return audio files
-  if (!mimeType.includes('audio')) {
+  if (
+    metadata?.data?.body
+      ? !metadata?.data?.body?.mimeType.includes('audio')
+      : !metadata?.data?.mimeType.includes('audio')
+  ) {
     throw new Error(
       'This Zora URL belongs to an NFT that is not an audio file. Please find an audio NFT on Zora & try again.'
     );
   }
 
-  if (isNullish(data.media.contentURI)) {
-    throw new Error(errorMessage);
-  }
-
   return [
-    {
-      url: command,
-      title,
-      artist,
-      artwork: artwork?.info?.uri,
-      audio: ipfsConverter(data.media.contentURI),
-      provider: 'Zora',
-    },
+    metadata?.data?.body
+      ? {
+          url: command,
+          title: metadata.data.body.title,
+          artist: metadata.data.body.artist,
+          artwork: metadata.data.body.artwork?.info?.uri,
+          audio: ipfsConverter(data.media.contentURI),
+          provider: 'Zora',
+        }
+      : {
+          url: command,
+          title: metadata.data.name,
+          artist: null,
+          artwork: null,
+          audio: ipfsConverter(data.media.contentURI),
+          provider: 'Zora',
+        },
   ];
 };
 export { zora };
