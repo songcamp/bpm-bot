@@ -20,7 +20,7 @@ import {
 import { isValidUrl, emojiNumbers, isNullish } from './src/utilities/index.js';
 
 // PROVIDERS
-import { zora, sound, catalog, audius } from './src/providers/index.js';
+import { zora, sound, catalog, audius, opensea } from './src/providers/index.js';
 
 // COMPONENTS
 import { audioPlayer } from './src/components/player.js';
@@ -83,15 +83,18 @@ client.on('messageCreate', async (message) => {
         // Select the correct provider based on the URL
         // Wee bit unsafe as we are using part of the URL to determine the provider.
         const provider = async () => {
+          const url = new URL(command);
           switch (true) {
-            case command.includes('catalog.works'):
+            case url.hostname.includes('catalog.works'):
               return await catalog(command);
-            case command.includes('zora.co'):
+            case url.hostname.includes('zora.co'):
               return await zora(command);
-            case command.includes('sound.xyz'):
+            case url.hostname.includes('sound.xyz'):
               return await sound(command);
-            case command.includes('audius.co'):
+            case url.hostname.includes('audius.co'):
               return await audius(command);
+            case url.hostname.includes('opensea.io'):
+              return await opensea(command);
             default:
               return null;
           }
