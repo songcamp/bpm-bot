@@ -12,7 +12,7 @@ query GetSpacesById($spaceId: uuid!) {
     description
     ipfs_hash_cover_img
     type
-    tracks {
+    tracks(order_by: {order: asc}) {
       order
       track {
         title
