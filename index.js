@@ -20,7 +20,13 @@ import {
 import { isValidUrl, emojiNumbers, isNullish } from './src/utilities/index.js';
 
 // PROVIDERS
-import { zora, sound, catalog, audius, opensea } from './src/providers/index.js';
+import {
+  zora,
+  sound,
+  catalog,
+  audius,
+  opensea,
+} from './src/providers/index.js';
 
 // COMPONENTS
 import { audioPlayer } from './src/components/player.js';
@@ -41,7 +47,22 @@ client.on('messageCreate', async (message) => {
     if (message.content.startsWith(trigger)) {
       const command = message.content.replace(`${trigger} `, ''); // This is the command appended to !bpm or the URL
       if (command === 'gm') {
-        return message.reply(`GM ${message.author.username}`);
+        return message.reply(`GM ${message.author.username} 🌞`);
+      } else if (command === 'help') {
+        const Embed = new MessageEmbed().setColor('#ff7a03').setDescription(`
+        **!bpm {music NFT URL}** — bot joins call + starts playing the first song
+        
+        ↳ repeat this step to add more songs to the queue.
+        
+        **!bpm np** — view the current queue list.
+        
+        **!bpm skip** — skip the current song.
+        
+        **!bpm stop** — BPM stops playing, clears the queue and leaves the call.
+
+        For more info checkout: https://bpm.gg/docs
+        `);
+        message.reply({ embeds: [Embed] });
       } else if (!voiceChannel) {
         message.reply(
           'You must be in an active voice channel to run commands.'
@@ -79,6 +100,56 @@ client.on('messageCreate', async (message) => {
           .addFields(fields.slice(0, 10));
 
         message.reply({ embeds: [Embed] });
+      } else if (command === 'pause') {
+        if (!server_queue) {
+          return message.reply(`There are no songs to pause!`);
+        }
+        server_queue.player.pause();
+        return message.reply(`Music paused!`);
+      } else if (command === 'play') {
+        if (!server_queue) {
+          return message.reply(`There are no songs to play!`);
+        }
+        server_queue.player.unpause();
+        return message.reply(`Music playing!`);
+      } else if (command === 'space') {
+        // Bit hacky for now, will need to refactor as code is duplicated below...
+        const res = await catalog(
+          'https://beta.catalog.works/spaces/10e6d715-4272-4b66-bd13-714e38e3060e'
+        );
+
+        if (isNullish(server_queue)) {
+          if (isNullish(res)) {
+            throw new Error(`No audio provider for: ${command}`);
+          }
+          const connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: message.guild.id,
+            adapterCreator: message.guild.voiceAdapterCreator,
+          });
+
+          const queue_constructor = {
+            voice_channel: voiceChannel,
+            text_channel: message.channel,
+            connection: null,
+            songs: [],
+            player: createAudioPlayer(),
+          };
+          // Add our key and value pair into the global queue. We then use this to get our server queue.
+          queue.set(message.guild.id, queue_constructor);
+          res.forEach((d) => queue_constructor.songs.push(d));
+
+          queue_constructor.connection = connection;
+
+          audioPlayer(message, { ...queue_constructor.songs[0] }, queue);
+        } else {
+          res.forEach((d) => server_queue.songs.push({ ...d }));
+          message.reply(
+            res.length > 1
+              ? 'Songs added to the queue!'
+              : 'Song added to the queue!'
+          );
+        }
       } else if (isValidUrl(command)) {
         // Select the correct provider based on the URL
         // Wee bit unsafe as we are using part of the URL to determine the provider.
@@ -123,14 +194,10 @@ client.on('messageCreate', async (message) => {
           res.forEach((d) => queue_constructor.songs.push(d));
 
           queue_constructor.connection = connection;
-      
-          audioPlayer(
-            message,
-            { ...queue_constructor.songs[0] },
-            queue
-          );
+
+          audioPlayer(message, { ...queue_constructor.songs[0] }, queue);
         } else {
-          res.forEach((d) => server_queue.songs.push({ ...d}));
+          res.forEach((d) => server_queue.songs.push({ ...d }));
           message.reply(
             res.length > 1
               ? 'Songs added to the queue!'
