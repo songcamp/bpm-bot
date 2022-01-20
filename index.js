@@ -69,7 +69,7 @@ client.on('messageCreate', async (message) => {
         );
       } else if (command === 'stop') {
         if (!server_queue) {
-          return msg.reply(`There are no songs in the queue!`);
+          return message.reply(`There are no songs in the queue!`);
         }
         server_queue.player.stop();
         const connection = getVoiceConnection(message.guild.id);
@@ -78,7 +78,7 @@ client.on('messageCreate', async (message) => {
         message.reply('Music stopped!');
       } else if (command === 'skip') {
         if (!server_queue) {
-          return msg.reply(`There are no songs in the queue!`);
+          return message.reply(`There are no songs in the queue!`);
         }
         server_queue.songs.shift();
         audioPlayer(message, server_queue.songs[0], queue);
