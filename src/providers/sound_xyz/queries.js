@@ -35,7 +35,6 @@ query getMintedRelease($soundHandle: String!, $releaseSlug: String!) {
       price
       startTime
       totalRaised
-      totalRaisedUSD
     }
     genre {
       id
