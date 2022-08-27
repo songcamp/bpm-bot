@@ -1,30 +1,43 @@
 import axios from "axios";
 import { getUrl, isNullish } from "../../utilities/index.js";
-import { url, GET_SOUND } from "./queries.js";
+import { url, GET_TRACK, GET_SONG } from "./queries.js";
 
 const sound = async (command) => {
     const { artist, song } = getUrl(command);
+    
     const res = await axios({
         url,
         method: "post",
         data: {
-            query: GET_SOUND,
+            query: GET_TRACK,
             variables: { soundHandle: artist, releaseSlug: song },
         },
     });
 
-    const { data: { getMintedRelease: d } } = res.data;
-    if (isNullish(d?.tracks[0]?.audio?.url)) {
+    const { data: { mintedRelease: {track: id }} } = res.data;
+
+    if (isNullish(id?.id)) {
         throw new Error('Sound xyz track not found');
     }
+
+    const track = await axios({
+        url,
+        method: "post",
+        data: {
+            query: GET_SONG,
+            variables: { trackId: id.id },
+        },
+    });
+
+    const { data: { audioFromTrack: { release, audio } } } = track.data;
     
     return [
         {
             url: command,
-            title: d?.title,
-            artist: d?.artist.name,
-            artwork: d?.coverImage.url,
-            audio: d?.tracks[0].audio.url,
+            title: release?.title,
+            artist: release?.artist.name,
+            artwork: release?.coverImage.url,
+            audio: audio?.url,
             provider: "Sound",
         }
     ];

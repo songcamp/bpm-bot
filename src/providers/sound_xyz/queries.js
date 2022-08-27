@@ -1,68 +1,41 @@
-const url = "https://www.sound.xyz/api/graphql";
+const url = "https://api.sound.xyz/graphql";
 
-const GET_SOUND = `
-query getMintedRelease($soundHandle: String!, $releaseSlug: String!) {
-    getMintedRelease(soundHandle: $soundHandle, releaseSlug: $releaseSlug) {
-      ...sharedReleaseFields
-    }
+const GET_TRACK = `
+query ReleasePage($soundHandle: String!, $releaseSlug: String!) {
+  mintedRelease(soundHandle: $soundHandle, releaseSlug: $releaseSlug) {
+    ...ReleasePageContent
   }
-  
-  fragment sharedReleaseFields on Release {
+}
+
+fragment ReleasePageContent on Release {
+  ...PublicSaleInfo
+}
+
+fragment PublicSaleInfo on Release {
+  track {
     id
-    title
-    titleSlug
-    type
-    createdAt
-    description
-    behindTheMusic
-    artist{
-      name
-    }
-    rewards {
-      id
-      title
-      description
-      numOfBackers
-      price
-    }
-    mintInfos {
-      id
-      createdAt
-      chainId
-      editionId
-      quantity
-      numSold
-      price
-      startTime
-      totalRaised
-    }
-    genre {
-      id
-      name
-    }
-    coverImage {
-      id
-      url
-      key
-    }
-    goldenEggImage {
-      id
-      url
-      key
-    }
-    tracks {
-      id
-      title
-      trackNumber
-      audio {
-        id
-        url
-        key
-      }
-      normalizedPeaks
-      duration
-    }
-  }              
+  }
+}       
 `;
 
-export { url, GET_SOUND };
+const GET_SONG = `
+query audioFromTrack($trackId: UUID!) {
+  audioFromTrack(trackId: $trackId) {
+    release {
+      title
+      coverImage {
+        url
+      }
+      artist {
+        name
+      }
+    }
+    audio {
+      url
+    }
+  }
+}
+`
+
+export { url, GET_TRACK, GET_SONG };
+
