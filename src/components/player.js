@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import {
   createAudioResource,
   StreamType,
@@ -7,21 +7,22 @@ import {
 
 import { isNullish } from '../utilities/index.js';
 
-const audioPlayer = async (message, song, queue) => {
+const audioPlayer = async (message, song, queue, connection) => {
   try {
     const { guild } = message;
-    const song_queue = queue.get(guild.id);
+    console.log('WE GOT GUILD:::', guild);
+    // const song_queue = queue.get(guild.id);
     
-    const { player, connection } = song_queue;
+    // const { player, connection } = song_queue;
 
     // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
-    if (isNullish(song)) {
-      song_queue.player.stop();
-      const connection = getVoiceConnection(message.guild.id);
-      connection.destroy();
-      queue.delete(message.guild.id);
-      return;
-    }
+    // if (isNullish(song)) {
+    //   song_queue.player.stop();
+    //   const connection = getVoiceConnection(message.guild.id);
+    //   connection.destroy();
+    //   queue.delete(message.guild.id);
+    //   return;
+    // }
 
     connection;
     connection.subscribe(player);
@@ -35,17 +36,17 @@ const audioPlayer = async (message, song, queue) => {
     player.play(resource);
 
     // when player has finished playing, play the next song in the queue
-    player.on('idle', () => {
-      song_queue.songs.shift();
-      audioPlayer(message, song_queue.songs[0], queue);
-    });
+    // player.on('idle', () => {
+    //   song_queue.songs.shift();
+    //   audioPlayer(message, song_queue.songs[0], queue);
+    // });
 
     // when player has an error, log it
     player.on('error', (error) => {
       throw new Error(error);
     });
 
-    const Embed = new MessageEmbed()
+    const Embed = new EmbedBuilder()
       .setColor('#ff7a03')
       .setTitle(`${title}${artist ? ` - ${artist}` : ''}`)
       .setURL(url)

@@ -2,6 +2,7 @@ import isNullish from '@bitty/nullish';
 import { validate as isValidV4UUID } from 'uuid';
 
 const IPFS_PROVIDER = 'https://ipfs.fleek.co/ipfs/';
+const queue = new Map(); // Global queue for song state.
 
 const isValidUrl = (url) => {
   try {
@@ -57,6 +58,7 @@ const ipfsConverter = (ipfs) => {
 
 export {
   isValidUrl,
+  queue,
   getUrl,
   isValidV4UUID,
   emojiNumbers,
