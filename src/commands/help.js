@@ -1,6 +1,4 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { joinVoiceChannel, getVoiceConnections } from '@discordjs/voice';
-
 
 export default {
   data: new SlashCommandBuilder()

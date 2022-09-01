@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { joinVoiceChannel, createAudioPlayer } from '@discordjs/voice';
-import { queue, isNullish } from '../utilities/index.js';
+import { queue, isNullish, isValidUrl } from '../utilities/index.js';
 import { providerSelect } from '../utilities/providerSelect.js';
 import { audioPlayer } from '../components/player.js';
 
@@ -20,7 +20,9 @@ export default {
 
     if (!voiceChannel) {
       await interaction.reply('You must be in an active voice channel to use this command.');
-    } else {
+    } else if (!isValidUrl(command)) {
+      await interaction.reply('Supplied URL is not valid.');
+    } else  {
 
       const res = await providerSelect(command);
 

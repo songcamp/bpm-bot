@@ -2,7 +2,7 @@
 
 This repository represents the Discord Bot - BPM Bot. This bot currently enables playback in Discord voice channels from these providers:
 
-* (Audius)[https://audius.co/]
+* (OpenSea)[https://opensea.io/]
 * (Catalog)[https://beta.catalog.works/]
 * (Zora)[https://zora.co/]
 * (Sound.xyz)[https://www.sound.xyz/]
@@ -14,7 +14,9 @@ Currently, best practice to test & work on this bot is to create a new Discord s
 Once you have your bot installed in a test server, identify the BOT_TOKEN, then create a `.env` file in the root directory of this repository. Add the line below to that file.
 
 ```
-    DISCORD_TOKEN=<your-bot-token>
+    CLIENT_TOKEN=<your-bot-token>
+    GUILD_ID=<local-guild-id-for-testing>
+    STATUS=DEVELOPMENT
 ```
 
 Once this is done, your testing bot should be hooked up to your testing server. Use the commands below to run the server and develop
@@ -28,4 +30,3 @@ Start the Server
 ```
     yarn start
 ```
-

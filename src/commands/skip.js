@@ -15,6 +15,15 @@ export default {
     }
 
     server_queue.songs.shift();
-    audioPlayer(interaction, server_queue.songs[0]);
+
+    if(server_queue.songs.length  === 0) {
+      server_queue.player.stop();
+      const connection = server_queue.connection;
+      connection.destroy();
+      queue.delete(interaction.guild.id);
+      interaction.reply('No more songs in the queue!');
+    } else {
+      audioPlayer(interaction, server_queue.songs[0]);
+    }
   },
 };

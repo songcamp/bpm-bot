@@ -1,19 +1,15 @@
 import { EmbedBuilder } from 'discord.js';
 import {
   createAudioResource,
-  createAudioPlayer,
-  StreamType,
   getVoiceConnection,
   AudioPlayerStatus,
-  joinVoiceChannel,
-  VoiceConnectionStatus
 } from '@discordjs/voice';
 
 import { isNullish, queue } from '../utilities/index.js';
 
-const audioPlayer = async (message, song) => {
+const audioPlayer = async (interaction, song) => {
   try {
-    const { guild } = message;
+    const { guild } = interaction;
     const song_queue = queue.get(guild.id);
     
     const { player, connection } = song_queue;
@@ -21,13 +17,10 @@ const audioPlayer = async (message, song) => {
     // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
     if (isNullish(song)) {
       song_queue.player.stop();
-      const connection = getVoiceConnection(message.guild.id);
       connection.destroy();
-      queue.delete(message.guild.id);
+      queue.delete(interaction.guild.id);
       return;
     }
-
-    // const player = createAudioPlayer();
 
     connection.subscribe(player);
 
@@ -40,10 +33,10 @@ const audioPlayer = async (message, song) => {
     player.play(resource);
 
     // when player has finished playing, play the next song in the queue
-    // player.on('idle', () => {
-    //   song_queue.songs.shift();
-    //   audioPlayer(message, song_queue.songs[0], queue);
-    // });
+    player.on(AudioPlayerStatus.Idle, () => {
+      song_queue.songs.shift();
+      audioPlayer(interaction, song_queue.songs[0]);
+    });
 
     // when player has an error, log it
     player.on('error', (error) => {
@@ -57,10 +50,10 @@ const audioPlayer = async (message, song) => {
       .setAuthor({ name: `Now Playing - via ${provider}`, iconURL: artwork, url })
       .setImage(artwork);
 
-    await message.reply({ embeds: [Embed] });
+    await interaction.reply({ embeds: [Embed] });
   } catch (err) {
     console.log('Player crashed, values::', {
-      message,
+      interaction,
       song,
       queue,
       err: err.message,
