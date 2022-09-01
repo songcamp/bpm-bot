@@ -4,7 +4,6 @@ import boilerplateClient from './utilities/boilerplateClient.js';
 const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildMembers,
       GatewayIntentBits.GuildVoiceStates
     ],
 });

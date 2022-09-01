@@ -31,7 +31,6 @@ const ready = async (client) => {
           body: commands,
         });
         console.log(`${chalk.white("Boilerplate Bot")} ${chalk.gray(">")} ${chalk.green("Successfully registered commands globally")}`);
-
       } else {
         await rest.put(
           Routes.applicationGuildCommands(client.user.id, process.env.GUILD_ID),
