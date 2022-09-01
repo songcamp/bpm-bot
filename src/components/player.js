@@ -1,37 +1,41 @@
 import { EmbedBuilder } from 'discord.js';
 import {
   createAudioResource,
+  createAudioPlayer,
   StreamType,
   getVoiceConnection,
+  AudioPlayerStatus,
+  joinVoiceChannel,
+  VoiceConnectionStatus
 } from '@discordjs/voice';
 
-import { isNullish } from '../utilities/index.js';
+import { isNullish, queue } from '../utilities/index.js';
 
-const audioPlayer = async (message, song, queue, connection) => {
+const audioPlayer = async (message, song) => {
   try {
     const { guild } = message;
-    console.log('WE GOT GUILD:::', guild);
-    // const song_queue = queue.get(guild.id);
+    const song_queue = queue.get(guild.id);
     
-    // const { player, connection } = song_queue;
+    const { player, connection } = song_queue;
 
     // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
-    // if (isNullish(song)) {
-    //   song_queue.player.stop();
-    //   const connection = getVoiceConnection(message.guild.id);
-    //   connection.destroy();
-    //   queue.delete(message.guild.id);
-    //   return;
-    // }
+    if (isNullish(song)) {
+      song_queue.player.stop();
+      const connection = getVoiceConnection(message.guild.id);
+      connection.destroy();
+      queue.delete(message.guild.id);
+      return;
+    }
 
-    connection;
+    // const player = createAudioPlayer();
+
     connection.subscribe(player);
 
     const { url, title, artist, artwork, audio, provider } = song;
 
-    const resource = createAudioResource(audio, {
-      inputType: StreamType.Arbitrary,
-    });
+    const resource = createAudioResource(audio);
+
+    connection.subscribe(player);
 
     player.play(resource);
 
@@ -50,10 +54,10 @@ const audioPlayer = async (message, song, queue, connection) => {
       .setColor('#ff7a03')
       .setTitle(`${title}${artist ? ` - ${artist}` : ''}`)
       .setURL(url)
-      .setAuthor(`Now Playing - via ${provider}`, artwork, url)
+      .setAuthor({ name: `Now Playing - via ${provider}`, iconURL: artwork, url })
       .setImage(artwork);
 
-    message.channel.send({ embeds: [Embed] });
+    await message.reply({ embeds: [Embed] });
   } catch (err) {
     console.log('Player crashed, values::', {
       message,

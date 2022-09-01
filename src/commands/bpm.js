@@ -1,5 +1,6 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, SlashCommandBuilder } from 'discord.js';
-import { joinVoiceChannel, getVoiceConnections } from '@discordjs/voice';
+import { SlashCommandBuilder } from 'discord.js';
+import { joinVoiceChannel, createAudioPlayer } from '@discordjs/voice';
+import { queue, isNullish } from '../utilities/index.js';
 import { providerSelect } from '../utilities/providerSelect.js';
 import { audioPlayer } from '../components/player.js';
 
@@ -8,60 +9,52 @@ export default {
   data: new SlashCommandBuilder()
     .setName("bpm")
     .setDescription("Play a song.").addStringOption(option =>
-      option.setName('input')
+      option.setName('song')
         .setDescription('Drop a link to an audio NFT from Catalog, Zora, Sound or Opensea.')
         .setRequired(true)),
 
   async execute(interaction, client) {
-    const command = interaction.options.getString('input');
+    const command = interaction.options.getString('song');
     const voiceChannel = interaction.member.voice.channelId
+    const server_queue = queue.get(interaction.guild.id);
 
     if (!voiceChannel) {
-      await interaction.reply('You must be in an active voice channel to use this command');
+      await interaction.reply('You must be in an active voice channel to use this command.');
     } else {
 
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel,
-        guildId: interaction.guildId,
-        adapterCreator: interaction.guild.voiceAdapterCreator,
-      });
+      const res = await providerSelect(command);
 
-      // const command = 'https://beta.catalog.works/greenringmusic/the-leap';
+      if (isNullish(server_queue)) {
+        if (isNullish(res)) {
+          throw new Error(`No audio provider for: ${command}`);
+        }
 
-     const res = await providerSelect(command);
+        const connection = joinVoiceChannel({
+          channelId: voiceChannel,
+          guildId: interaction.guildId,
+          adapterCreator: interaction.guild.voiceAdapterCreator,
+        });
 
-     console.log('WHAT IS RES', res);
-     audioPlayer(interaction, res, '', connection);
+        const queue_constructor = {
+          voice_channel: voiceChannel,
+          text_channel: interaction.channel,
+          connection: null,
+          songs: [],
+          player: createAudioPlayer(),
+        };
 
-      // const pingembed = new EmbedBuilder()
-      //   .setColor("#5865f4")
-      //   .setTitle(`:ping_pong: pong!`)
-      //   .addFields(
-      //     {
-      //       name: "**Api** latency",
-      //       value: `> **${Math.round(client.ws.ping)}**ms`,
-      //       inline: false,
-      //     }
-      //   )
-      //   .setTimestamp();
+        // Add our key and value pair into the global queue. We then use this to get our server queue.
+        queue.set(interaction.guild.id, queue_constructor);
 
+        res.forEach((d) => queue_constructor.songs.push(d));
 
-      // const button = new ActionRowBuilder().addComponents(
-      //   new ButtonBuilder()
-      //     .setLabel('Discord Ping')
-      //     .setStyle(5)
-      //     .setEmoji('💻')
-      //     .setURL('https://discordstatus.com/'),
-      // );
+        queue_constructor.connection = connection;
 
-      // await interaction.reply({
-      //   embeds: [pingembed],
-      //   components: [button],
-      // });
-      setTimeout(() => {
-        button.components[0].setDisabled(true);
-        interaction.editReply({ embeds: [pingembed], components: [button] });
-      }, 120000);
+        audioPlayer(interaction, { ...queue_constructor.songs[0] });
+      } else {
+        res.forEach((d) => server_queue.songs.push({ ...d }));
+        interaction.reply(`Song${res.length > 1 ? 's' : ''} added to the queue!`);
+      }
     }
   },
 };
