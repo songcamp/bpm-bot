@@ -4,12 +4,14 @@ import {
   StreamType,
   getVoiceConnection,
 } from '@discordjs/voice';
+
 import { isNullish } from '../utilities/index.js';
 
 const audioPlayer = async (message, song, queue) => {
   try {
     const { guild } = message;
     const song_queue = queue.get(guild.id);
+    
     const { player, connection } = song_queue;
 
     // If no song is left in the server queue. Leave voice channel and delete items from the global queue.
