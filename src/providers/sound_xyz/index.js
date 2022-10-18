@@ -2,6 +2,8 @@ import axios from 'axios';
 import { getUrl, isNullish } from '../../utilities/index.js';
 import { url, GET_TRACK, GET_SONG } from './queries.js';
 
+const CLIENT_KEY = process.env.SOUND_CLIENT_KEY;
+
 const sound = async (command) => {
   try {
     const { artist, song } = getUrl(command);
@@ -9,6 +11,9 @@ const sound = async (command) => {
     const res = await axios({
       url,
       method: 'post',
+      headers: {
+        'x-sound-client-key': CLIENT_KEY,
+      },
       data: {
         query: GET_TRACK,
         variables: { soundHandle: artist, releaseSlug: song },
@@ -28,6 +33,9 @@ const sound = async (command) => {
     const track = await axios({
       url,
       method: 'post',
+      headers: {
+        'x-sound-client-key': CLIENT_KEY,
+      },
       data: {
         query: GET_SONG,
         variables: { trackId: id.id },
