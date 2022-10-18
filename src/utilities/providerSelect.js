@@ -1,12 +1,7 @@
-import {
-    zora,
-    sound,
-    catalog,
-    audius,
-    opensea,
-  } from '../providers/index.js';
+import { zora, sound, catalog, audius, opensea } from '../providers/index.js';
 
 const providerSelect = async (command) => {
+  try {
     const url = new URL(command);
     switch (true) {
       case url.hostname.includes('catalog.works'):
@@ -22,6 +17,9 @@ const providerSelect = async (command) => {
       default:
         return null;
     }
-  };
-  
-  export { providerSelect };
+  } catch (error) {
+    throw new Error(`Failed to find the requested track from ${command}`);
+  }
+};
+
+export { providerSelect };
