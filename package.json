@@ -16,8 +16,8 @@
     "chalk": "4.1.2",
     "discord-player": "^5.2.0",
     "discord.js": "^14.2.0",
+    "ffmpeg-static": "^5.1.0",
     "libsodium-wrappers": "^0.7.9",
-    "node-opus": "^0.3.3",
     "opusscript": "^0.0.8",
     "uuid": "^8.3.2"
   },
