@@ -3,6 +3,7 @@ import {
   createAudioResource,
   getVoiceConnection,
   AudioPlayerStatus,
+  VoiceConnectionStatus
 } from '@discordjs/voice';
 
 import { isNullish, queue } from '../utilities/index.js';
@@ -41,6 +42,13 @@ const audioPlayer = async (interaction, song) => {
     // when player has an error, log it
     player.on('error', (error) => {
       throw new Error(error);
+    });
+
+    // Add the event listener for the connection state change
+    connection.on('stateChange', (oldState, newState) => {
+      if (oldState.status === VoiceConnectionStatus.Ready && newState.status === VoiceConnectionStatus.Connecting) {
+        connection.configureNetworking();
+      }
     });
 
     const Embed = new EmbedBuilder()
